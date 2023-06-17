@@ -10,6 +10,7 @@ const RenderCampsite = (props) => {
 
 	//dx delta x, distance across a gesture
 	const isLeftSwipe = ({ dx }) => dx < -200;
+	const isRightSwipe = ({ dx }) => dx > 200;
 	const panResponder = PanResponder.create({
 		onStartShouldSetPanResponder: () => true,
 		onPanResponderGrant: () => {
@@ -41,6 +42,9 @@ const RenderCampsite = (props) => {
 					],
 					{ cancelable: false }
 				);
+			}
+			if (isRightSwipe(gestureState)) {
+				onShowModal();
 			}
 		},
 	});
