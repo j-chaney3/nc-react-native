@@ -3,6 +3,7 @@ import Constants from 'expo-constants';
 import CampsiteInfoScreen from './CampsiteInfoScreen';
 import DirectoryScreen from './DirectoryScreen';
 import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/core';
 import {
 	createDrawerNavigator,
 	DrawerContentScrollView,
@@ -151,10 +152,16 @@ const LoginNavigator = () => {
 			<Stack.Screen
 				name="Login"
 				component={LoginScreen}
-				options={({ navigation }) => ({
+				options={({ navigation, route }) => ({
+					headerTitle: getFocusedRouteNameFromRoute(route),
 					headerLeft: () => (
 						<Icon
-							name="sign-in"
+							name={
+								getFocusedRouteNameFromRoute(route) ===
+								'Register'
+									? 'user-plus'
+									: 'sign-in'
+							}
 							type="font-awesome"
 							iconStyle={styles.stackIcon}
 							onPress={() => navigation.toggleDrawer()}
