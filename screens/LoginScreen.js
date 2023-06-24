@@ -4,6 +4,8 @@ import { CheckBox, Input, Button, Icon } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as MediaLibrary from 'expo-media-library';
 import { baseUrl } from '../shared/baseUrl';
 import { logo } from '../assets/images/logo.png';
 
@@ -147,9 +149,38 @@ const RegisterTab = () => {
 				allowsEditing: true,
 				aspect: [1, 1],
 			});
+
+			if (!capturedImage.canceled) {
+				console.log(capturedImage);
+				processImage(capturedImage.assets[0].uri);
+			}
+		}
+	};
+
+	const processImage = async (imgUri) => {
+		const processedImage = await ImageManipulator.manipulateAsync(
+			imgUri,
+			[{ resize: { width: 400, height: 400 } }],
+			{ format: ImageManipulator.SaveFormat.PNG }
+		);
+		setImageUrl(processedImage.uri);
+		console.log('Processed Image: ', processedImage);
+		MediaLibrary.saveToLibraryAsync(processedImage.uri);
+		return processedImage;
+	};
+
+	const getImageFromGallery = async () => {
+		const mediaLibraryPermissions =
+			await ImagePicker.requestMediaLibraryPermissionsAsync();
+		console.log('perms: ', mediaLibraryPermissions);
+		if (mediaLibraryPermissions.status === 'granted') {
+			const capturedImage = await ImagePicker.launchImageLibraryAsync({
+				allowsEditing: true,
+				aspect: [1, 1],
+			});
 			if (capturedImage.assets) {
-				console.log(capturedImage.assets[0]);
-				setImageUrl(capturedImage.assets[0].uri);
+				console.log('Gallery Image: ', capturedImage.assets[0]);
+				processImage(capturedImage.assets[0].uri);
 			}
 		}
 	};
@@ -164,6 +195,7 @@ const RegisterTab = () => {
 						style={styles.image}
 					/>
 					<Button title="Camera" onPress={getImageFromCamera} />
+					<Button title="Gallery" onPress={getImageFromGallery} />
 				</View>
 				<Input
 					placeholder="Username"
